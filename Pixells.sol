@@ -20,6 +20,7 @@ contract Pixells is Ownable, Destroyable {
 	}
 
 	mapping (uint => mapping (uint => Pixel)) private canvas;
+    mapping (address => uint) public pixelOwnerPixelCount;
 
 // Set Canvas Dimension in Pixel
 	uint maxWidth_x = 1000;
@@ -42,14 +43,32 @@ contract Pixells is Ownable, Destroyable {
         _;
     }
 
+//** Private helper Functions */
+// Function to Purchase Pixel
+    function pixelPurchase(uint x, uint y, string memory color) private {
+        pixelOwnerPixelCount[canvas[x][y].pixelOwner]--;
+        pixelOwnerPixelCount[msg.sender]++;
+        canvas[x][y] = Pixel({pixelOwner: msg.sender, pixelPrice: msg.value, pixelColor: color});
+        emit Purchase(msg.sender, msg.value, color, x, y);
+    }
+
 //** Setter Functions */
 // Function to buy a Pixel from Contract
-	function buyPixel(uint x, uint y, string memory color) public payable costs(1000 wei) isPixel(x,y) {
+	function buyPixel(uint x, uint y, string memory color) public payable costs(1 ether) isPixel(x,y) {
         require (msg.value > canvas[x][y].pixelPrice, "Pixel price is higher.");
-        canvas[x][y] = Pixel({pixelOwner: msg.sender, pixelPrice: msg.value, pixelColor: color});
-        // To-Do Next: Implement function to transfer pixelPice(msg.value) to oldPixelOwner.
-        ContractBalance += msg.value;
-        emit Purchase(msg.sender, msg.value, color, x, y);
+        require (msg.sender != canvas[x][y].pixelOwner, "You already own this pixel.");
+
+        if (canvas[x][y].pixelPrice == 0){
+            ContractBalance += msg.value;
+            pixelPurchase(x,y, color);
+
+        }
+        else if  (canvas[x][y].pixelPrice > 0){
+            address payable oldPixelOwnerPayable = address(uint160(canvas[x][y].pixelOwner));
+            oldPixelOwnerPayable.transfer(msg.value);
+            pixelPurchase(x,y, color);
+        }
+        assert(msg.sender == canvas[x][y].pixelOwner);
 	}
 
 // Function to set Pixel Color
@@ -59,6 +78,7 @@ contract Pixells is Ownable, Destroyable {
     }
 // Function to set Pixel Price
     function setPrice(uint x, uint y, uint newPrice) public onlyPixelOwner(x,y) {
+        require(newPrice > 0, "The price of your Pixel must be greater than 0.");
         canvas[x][y].pixelPrice = newPrice;
         emit PriceChanged(msg.sender, newPrice, x, y);
     }
