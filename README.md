@@ -81,3 +81,14 @@ If you want to create an own new Truffle project, here are the first steps to st
     truffle migrate  
     ```
 7. Check out the Truffle documentation for more detailed explanations https://www.trufflesuite.com/docs/truffle/getting-started/creating-a-project
+
+### Additional installations 
+For unit testing truffle-assertions can be very helpful
+1. Initialize node package manager fist
+    ```
+    npm init
+    ```
+2. Install truffle-assertions
+    ```
+    npm install truffle-assertions
+    ```

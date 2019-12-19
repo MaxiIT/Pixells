@@ -1,6 +1,3 @@
-//Open Ganache and Link the new project with the truffle-config.js file, save and restart
-// >> truffle migrate
-
 import"./Ownable.sol";
 import"./Destroyable.sol";
 
