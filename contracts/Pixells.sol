@@ -54,7 +54,7 @@ contract Pixells is Ownable, Destroyable {
 
 //** Setter Functions */
 // Function to buy a Pixel from Contract
-	function buyPixel(uint x, uint y, string memory color) public payable costs(1000) isPixel(x,y) {
+	function buyPixel(uint x, uint y, string memory color) public payable costs(0.1 ether) isPixel(x,y) {
         require (msg.value > canvas[x][y].pixelPrice, "Pixel price is higher.");
         require (msg.sender != canvas[x][y].pixelOwner, "You already own this pixel.");
 
@@ -78,7 +78,7 @@ contract Pixells is Ownable, Destroyable {
     }
 // Function to set Pixel Price
     function setPrice(uint x, uint y, uint newPrice) public onlyPixelOwner(x,y) {
-        require(newPrice > 0, "The price of your Pixel must be greater than 0.");
+        require(newPrice >= 0.1 ether, "The price of your Pixel must be greater or equal than 0.1 Ether.");
         canvas[x][y].pixelPrice = newPrice;
         emit PriceChanged(msg.sender, newPrice, x, y);
     }
